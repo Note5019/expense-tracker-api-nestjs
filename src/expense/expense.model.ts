@@ -9,4 +9,5 @@ export class Expense implements Prisma.ExpenseCreateInput {
   notes: string | undefined | null;
   createdAt: Date;
   updatedAt: Date;
+  user: Prisma.UserCreateNestedOneWithoutExpenseInput;
 }
