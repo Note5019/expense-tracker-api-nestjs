@@ -10,6 +10,24 @@ services:
       - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
+    networks:
+      - prisma-network
+
+  nest-app:
+    build: .
+    tty: true
+    depends_on:
+      - db
+    ports:
+      - '3000:3000'
+    networks:
+      - prisma-network
+    volumes:
+      - ./:/app/
 
 volumes:
   db-data:
+
+networks:
+  prisma-network:
+    driver: bridge
