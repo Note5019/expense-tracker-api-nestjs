@@ -11,13 +11,13 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @ApiBody({
-    description: 'Login',
+    description: 'Login.',
     type: LoginDTO,
   })
   @ApiResponse({
     status: 201,
     description:
-      'Successfully logged in, access token generated for next request',
+      'Successfully logged in, access token generated for next request.',
   })
   async login(@Request() req) {
     console.log('req', req.user);
