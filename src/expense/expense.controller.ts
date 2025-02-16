@@ -11,9 +11,11 @@ import {
 import { ExpenseService } from './expense.service';
 import { Expense } from '@prisma/client';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('expense')
+@ApiBearerAuth()
 export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
 

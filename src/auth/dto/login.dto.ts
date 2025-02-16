@@ -1,12 +1,12 @@
-export class RegisterDTO {
+export class LoginDTO {
   /**
-   * Email for register
+   * Email for login
    * @example test@mail.com
    */
   readonly email: string;
 
   /**
-   * Password for register
+   * Password for loing
    * @example password
    */
   readonly password: string;

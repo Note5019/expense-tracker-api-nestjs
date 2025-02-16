@@ -102,3 +102,7 @@ Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 - npm install
 - docker-compose up -d
 - npx prisma db push
+
+# Swagger
+- npm run start
+- go to http://localhost:3000/docs
