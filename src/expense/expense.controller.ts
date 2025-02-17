@@ -6,12 +6,14 @@ import {
   Param,
   Post,
   Put,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { ExpenseService } from './expense.service';
 import { Expense } from '@prisma/client';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { CreateExpenseDto } from './dto/espense.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('expense')
@@ -23,9 +25,28 @@ export class ExpenseController {
   async getAllExpenses(): Promise<Expense[]> {
     return this.expenseService.getAllExpenses();
   }
+
   @Post()
-  async postExpense(@Body() postData: Expense): Promise<Expense> {
-    return this.expenseService.createExpense(postData);
+  @ApiBody({
+    description: 'Create a expense for the authen user.',
+    type: CreateExpenseDto,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Successfully created an expense.',
+  })
+  async createExpense(
+    @Request() req,
+    @Body() expenseDto: CreateExpenseDto,
+  ): Promise<Expense> {
+    return this.expenseService.createExpense({
+      ...expenseDto,
+      user: {
+        connect: {
+          id: req.user.userId as number,
+        },
+      },
+    });
   }
 
   @Get(':id')

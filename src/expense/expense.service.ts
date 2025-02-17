@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Expense } from '@prisma/client';
+import { Expense, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class ExpenseService {
     return await this.prisma.expense.findUnique({ where: { id } });
   }
 
-  createExpense(data: Expense): Promise<Expense> {
+  createExpense(data: Prisma.ExpenseCreateInput): Promise<Expense> {
     return this.prisma.expense.create({ data });
   }
 
