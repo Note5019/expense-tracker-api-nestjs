@@ -12,7 +12,7 @@ import {
 import { ExpenseService } from './expense.service';
 import { Expense } from '@prisma/client';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { CreateExpenseDto } from './dto/create-espense.dto';
 import { UpdateExpenseDto } from './dto/update-espense.dto';
 
@@ -54,12 +54,22 @@ export class ExpenseController {
   }
 
   @Delete(':id')
-  async deleteExpense(@Param('id') id: number): Promise<Expense> {
-    // TODO: where userId
-    return this.expenseService.deleteExpense(id);
+  async deleteExpense(
+    @Request() req,
+    @Param('id') id: number,
+  ): Promise<Expense> {
+    return this.expenseService.deleteExpense(req.user.userId as number, id);
   }
 
   @Put(':id')
+  @ApiBody({
+    description: 'Update a expense for the authen user.',
+    type: UpdateExpenseDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully updated the expense.',
+  })
   async updateExpense(
     @Request() req,
     @Param('id') id: number,

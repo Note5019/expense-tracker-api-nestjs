@@ -40,7 +40,9 @@ export class ExpenseService {
     });
   }
 
-  deleteExpense(id: number): Promise<Expense> {
-    return this.prisma.expense.delete({ where: { id: Number(id) } });
+  deleteExpense(userId: number, id: number): Promise<Expense> {
+    return this.prisma.expense.delete({
+      where: { id: Number(id), userId: Number(userId) },
+    });
   }
 }
