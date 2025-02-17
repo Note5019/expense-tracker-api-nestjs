@@ -18,6 +18,14 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
         });
         break;
       }
+      case 'P2025': {
+        const status = HttpStatus.BAD_REQUEST;
+        response.status(status).json({
+          statusCode: status,
+          message: `Record to perform not found.`,
+        });
+        break;
+      }
       default:
         // default 500 error code
         super.catch(exception, host);

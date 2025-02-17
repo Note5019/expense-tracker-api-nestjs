@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Expense, Prisma } from '@prisma/client';
+import { Expense } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
+import { CreateExpenseDto } from './dto/create-espense.dto';
+import { UpdateExpenseDto } from './dto/update-espense.dto';
 
 @Injectable()
 export class ExpenseService {
@@ -14,12 +16,28 @@ export class ExpenseService {
     return await this.prisma.expense.findUnique({ where: { id } });
   }
 
-  createExpense(data: Prisma.ExpenseCreateInput): Promise<Expense> {
-    return this.prisma.expense.create({ data });
+  createExpense(userId: number, data: CreateExpenseDto): Promise<Expense> {
+    return this.prisma.expense.create({
+      data: {
+        ...data,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+    });
   }
 
-  updateExpense(id: number, data: Expense): Promise<Expense> {
-    return this.prisma.expense.update({ where: { id: Number(id) }, data });
+  updateExpense(
+    userId: number,
+    expenseId: number,
+    data: UpdateExpenseDto,
+  ): Promise<Expense> {
+    return this.prisma.expense.update({
+      where: { id: Number(expenseId), userId: Number(userId) },
+      data,
+    });
   }
 
   deleteExpense(id: number): Promise<Expense> {
