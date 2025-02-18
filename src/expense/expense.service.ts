@@ -3,17 +3,46 @@ import { Expense } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { CreateExpenseDto } from './dto/create-espense.dto';
 import { UpdateExpenseDto } from './dto/update-espense.dto';
+import { QueryExpenseDto } from './dto/query-expense.dto';
 
 @Injectable()
 export class ExpenseService {
   constructor(private prisma: PrismaService) {}
 
-  getAllExpenses(): Promise<Expense[]> {
-    return this.prisma.expense.findMany();
+  getAllExpenses(userId: number, query?: QueryExpenseDto): Promise<Expense[]> {
+    const where = {
+      userId: Number(userId),
+    };
+
+    const dateQuery = {};
+    if (query?.startDate) {
+      dateQuery['gte'] = query?.startDate;
+    }
+    if (query?.endDate) {
+      dateQuery['lte'] = query?.endDate;
+    }
+    Object.assign(where, { date: dateQuery });
+
+    if (query?.category) {
+      Object.assign(where, { category: { contains: query?.category } });
+    }
+    return this.prisma.expense.findMany({
+      where,
+      orderBy: [
+        {
+          date: 'desc',
+        },
+        {
+          createdAt: 'desc',
+        },
+      ],
+    });
   }
 
-  async getExpense(id: number): Promise<Expense | null> {
-    return await this.prisma.expense.findUnique({ where: { id } });
+  async getExpense(userId: number, id: number): Promise<Expense | null> {
+    return await this.prisma.expense.findUnique({
+      where: { id, userId: Number(userId) },
+    });
   }
 
   createExpense(userId: number, data: CreateExpenseDto): Promise<Expense> {

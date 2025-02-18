@@ -4,17 +4,20 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { ExpenseService } from './expense.service';
 import { Expense } from '@prisma/client';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { CreateExpenseDto } from './dto/create-espense.dto';
 import { UpdateExpenseDto } from './dto/update-espense.dto';
+import { QueryExpenseDto } from './dto/query-expense.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('expense')
@@ -23,9 +26,12 @@ export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
 
   @Get()
-  async getAllExpenses(): Promise<Expense[]> {
-    // TODO: where userId
-    return this.expenseService.getAllExpenses();
+  async getAllExpenses(
+    @Request() req,
+    @Query() query?: QueryExpenseDto,
+  ): Promise<Expense[]> {
+    console.log('dto', query);
+    return this.expenseService.getAllExpenses(req.user.userId as number, query);
   }
 
   @Post()
@@ -48,15 +54,17 @@ export class ExpenseController {
   }
 
   @Get(':id')
-  async getExpense(@Param('id') id: number): Promise<Expense | null> {
-    // TODO: where userId
-    return this.expenseService.getExpense(Number(id));
+  async getExpense(
+    @Request() req,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Expense | null> {
+    return this.expenseService.getExpense(req.user.userId as number, id);
   }
 
   @Delete(':id')
   async deleteExpense(
     @Request() req,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<Expense> {
     return this.expenseService.deleteExpense(req.user.userId as number, id);
   }
@@ -72,7 +80,7 @@ export class ExpenseController {
   })
   async updateExpense(
     @Request() req,
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() expenseDto: UpdateExpenseDto,
   ): Promise<Expense> {
     return this.expenseService.updateExpense(
