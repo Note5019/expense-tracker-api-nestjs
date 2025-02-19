@@ -6,16 +6,20 @@ import {
   Patch,
   Param,
   Delete,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post('register')
   @ApiBody({
     type: RegisterDTO,
@@ -29,7 +33,7 @@ export class UsersController {
     status: 409,
     description: 'Failed to register, email has been used.',
   })
-  async register(@Body() registerDTO: RegisterDTO) {
+  async register(@Body() registerDTO: RegisterDTO): Promise<User> {
     return await this.usersService.create(registerDTO);
   }
 
