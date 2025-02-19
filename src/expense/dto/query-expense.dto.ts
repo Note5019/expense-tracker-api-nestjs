@@ -1,13 +1,5 @@
-import { Query } from '@nestjs/common';
-import { ApiQuery } from '@nestjs/swagger';
-import { Expose, Transform, Type } from 'class-transformer';
-import {
-  IsDate,
-  IsDateString,
-  IsOptional,
-  IsString,
-  Length,
-} from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDate, IsOptional, IsString } from 'class-validator';
 
 export class QueryExpenseDto {
   /**

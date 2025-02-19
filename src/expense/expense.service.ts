@@ -5,12 +5,22 @@ import { CreateExpenseDto } from './dto/create-espense.dto';
 import { UpdateExpenseDto } from './dto/update-espense.dto';
 import { QueryExpenseDto } from './dto/query-expense.dto';
 import { Report } from './entities/report.entity';
+import {
+  PaginatedResult,
+  PaginateFunction,
+  paginator,
+} from 'src/utils/pagination';
+import { PaginateOptions } from 'src/utils/paginate.dto';
 
 @Injectable()
 export class ExpenseService {
   constructor(private prisma: PrismaService) {}
 
-  getAllExpenses(userId: number, query?: QueryExpenseDto): Promise<Expense[]> {
+  getAllExpenses(
+    userId: number,
+    query?: QueryExpenseDto,
+    paginateOptions?: PaginateOptions,
+  ): Promise<PaginatedResult<Expense>> {
     const where = {
       userId: Number(userId),
     };
@@ -27,17 +37,18 @@ export class ExpenseService {
     if (query?.category) {
       Object.assign(where, { category: { contains: query?.category } });
     }
-    return this.prisma.expense.findMany({
-      where,
-      orderBy: [
-        {
-          date: 'desc',
-        },
-        {
-          createdAt: 'desc',
-        },
-      ],
-    });
+
+    const orderBy = [
+      {
+        date: 'desc',
+      },
+      {
+        createdAt: 'desc',
+      },
+    ];
+    const paginate: PaginateFunction = paginator({ perPage: 10 });
+
+    return paginate(this.prisma.expense, { where, orderBy }, paginateOptions);
   }
 
   async getReport(userId: number, query?: QueryExpenseDto): Promise<Report> {

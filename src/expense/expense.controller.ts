@@ -21,6 +21,8 @@ import { CreateExpenseDto } from './dto/create-espense.dto';
 import { UpdateExpenseDto } from './dto/update-espense.dto';
 import { QueryExpenseDto } from './dto/query-expense.dto';
 import { Report } from './entities/report.entity';
+import { PaginatedResult } from 'src/utils/pagination';
+import { PaginateOptions } from 'src/utils/paginate.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('expense')
@@ -32,9 +34,17 @@ export class ExpenseController {
   async getAllExpenses(
     @Request() req,
     @Query() query?: QueryExpenseDto,
-  ): Promise<Expense[]> {
-    console.log('dto', query);
-    return this.expenseService.getAllExpenses(req.user.userId as number, query);
+    @Query() paginateOptions?: PaginateOptions,
+  ): Promise<PaginatedResult<Expense>> {
+    // TODO: test case
+    // TODO: deploy api to clud service
+    // TODO: readme instruction
+    // TODO: swagger + postman
+    return this.expenseService.getAllExpenses(
+      req.user.userId as number,
+      query,
+      paginateOptions,
+    );
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
