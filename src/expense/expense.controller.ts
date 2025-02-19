@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -10,6 +11,7 @@ import {
   Query,
   Request,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ExpenseService } from './expense.service';
 import { Expense } from '@prisma/client';
@@ -18,6 +20,7 @@ import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { CreateExpenseDto } from './dto/create-espense.dto';
 import { UpdateExpenseDto } from './dto/update-espense.dto';
 import { QueryExpenseDto } from './dto/query-expense.dto';
+import { Report } from './entities/report.entity';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('expense')
@@ -32,6 +35,18 @@ export class ExpenseController {
   ): Promise<Expense[]> {
     console.log('dto', query);
     return this.expenseService.getAllExpenses(req.user.userId as number, query);
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('reports')
+  async getReport(
+    @Request() req,
+    @Query() query?: QueryExpenseDto,
+  ): Promise<Report> {
+    return await this.expenseService.getReport(
+      req.user.userId as number,
+      query,
+    );
   }
 
   @Post()

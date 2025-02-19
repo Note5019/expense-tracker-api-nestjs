@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma.service';
 import { CreateExpenseDto } from './dto/create-espense.dto';
 import { UpdateExpenseDto } from './dto/update-espense.dto';
 import { QueryExpenseDto } from './dto/query-expense.dto';
+import { Report } from './entities/report.entity';
 
 @Injectable()
 export class ExpenseService {
@@ -36,6 +37,48 @@ export class ExpenseService {
           createdAt: 'desc',
         },
       ],
+    });
+  }
+
+  async getReport(userId: number, query?: QueryExpenseDto): Promise<Report> {
+    const where = {
+      userId: Number(userId),
+    };
+
+    const dateQuery = {};
+    if (query?.startDate) {
+      dateQuery['gte'] = query?.startDate;
+    }
+    if (query?.endDate) {
+      dateQuery['lte'] = query?.endDate;
+    }
+    Object.assign(where, { date: dateQuery });
+
+    if (query?.category) {
+      Object.assign(where, { category: { contains: query?.category } });
+    }
+    const categoryGroup = await this.prisma.expense.groupBy({
+      by: ['category'],
+      where,
+      _sum: {
+        amount: true,
+      },
+    });
+
+    const categoryGroup2 = categoryGroup.map((cat) => {
+      return {
+        category: cat.category,
+        total_expenses:
+          Math.round((cat._sum.amount ?? 0 + Number.EPSILON) * 100) / 100,
+      };
+    });
+
+    return new Report({
+      categories: categoryGroup2,
+      total_expenses: categoryGroup2.reduce(
+        (sum, cat) => sum + cat.total_expenses,
+        0,
+      ),
     });
   }
 
